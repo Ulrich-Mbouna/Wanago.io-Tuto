@@ -1,0 +1,29 @@
+
+### Create new User
+POST localhost:3000/authentication/register
+Content-Type: application/json
+
+{
+  "name": "Mbouna1",
+  "email": "msus1@gmail.com",
+  "password": "123456"
+}
+
+### Login user with email and password
+POST localhost:3000/authentication/log-in
+Content-Type: application/json
+
+{
+  "email": "msus1@gmail.com",
+  "password": "123456"
+}
+
+### Get User by ID
+GET localhost:3000/user/2
+
+
+### Get Authenticate User
+GET localhost:3000/authentication
+
+### Logout User
+POST localhost:3000/authentication/log-out
