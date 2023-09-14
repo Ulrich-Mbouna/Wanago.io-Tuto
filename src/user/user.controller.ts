@@ -3,8 +3,9 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import JwtAuthenticationGuard from "../authentication/jwt-authentication.guard";
+import { FindOneParams } from "../utils/findOneParams";
 
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -14,7 +15,8 @@ export class UserController {
   }
   @UseGuards(JwtAuthenticationGuard)
   @Get(':id')
-  async getOneUser(@Param('id') id: string) {
+  async getOneUser(@Param() { id }: FindOneParams) {
+    console.log({id});
     return this.userService.getById(+id);
   }
 }

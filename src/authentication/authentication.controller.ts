@@ -3,29 +3,29 @@ import {
   Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   Req,
   HttpCode,
   UseGuards,
   HttpStatus,
   Res,
+  SerializeOptions,
 } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
-import { CreateAuthenticationDto } from './dto/create-authentication.dto';
-import { UpdateAuthenticationDto } from './dto/update-authentication.dto';
 import { RequestWithUser } from './requestWithUser.interface';
 import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import { Response } from 'express';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
+import { RegisterDto } from './dto/register.dto';
 
 @Controller('authentication')
+@SerializeOptions({
+  strategy: 'excludeAll',
+})
 export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
   @Post('register')
-  async register(@Body() createAuthenticationDto: CreateAuthenticationDto) {
+  async register(@Body() createAuthenticationDto: RegisterDto) {
     return this.authenticationService.register(createAuthenticationDto);
   }
 
@@ -55,7 +55,6 @@ export class AuthenticationController {
   @UseGuards(JwtAuthenticationGuard)
   @Get()
   authenticate(@Req() request: RequestWithUser) {
-    console.log({ cookies: request?.cookies });
     const user = request.user;
     user.password = undefined;
     return user;

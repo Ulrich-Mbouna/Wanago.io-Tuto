@@ -7,9 +7,13 @@ Content-Type: application/json
 
 {
   "title": "Post 1",
-  "content": "Content of Post 1"
+  "content": "Content of Post 1",
+  "categories": [
+    {
+      "id": 1
+    }
+  ]
 }
 
 ### Delete post by id
-
 DELETE localhost:3000/posts/2

@@ -1,0 +1,2 @@
+### Get All Address
+GET http://localhost:3000/address

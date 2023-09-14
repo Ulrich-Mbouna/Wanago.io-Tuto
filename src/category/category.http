@@ -1,0 +1,11 @@
+### Create New Category
+POST localhost:3000/category
+Content-Type: application/json
+
+{
+  "name": "mobile"
+}
+
+### GET Category By ID
+GET localhost:3000/category/2
+

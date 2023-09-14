@@ -1,29 +1,38 @@
-import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import Post from './entities/post.entity';
 import { Repository } from 'typeorm';
-import {PostNotFoundException} from "./exception/postNotFound.exception";
+import { PostNotFoundException } from './exception/postNotFound.exception';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class PostsService {
   constructor(
-    @InjectRepository(Post) private postRepository: Repository<Post> ){
-  }
+    @InjectRepository(Post) private postRepository: Repository<Post>,
+  ) {}
 
-  async createPost(createPostDto: CreatePostDto) {
-    const newPost = this.postRepository.create(createPostDto);
+  async createPost(post: CreatePostDto, user: User) {
+    const newPost = this.postRepository.create({
+      ...post,
+      author: user,
+    });
     await this.postRepository.save(newPost);
     return newPost;
   }
 
   async getAllPosts() {
-    return this.postRepository.find();
+    return this.postRepository.find({ relations: ['author'] });
   }
 
   async getPostById(id: number) {
-    const post = this.postRepository.findOne({where: {id}});
+    const post = this.postRepository.findOne({
+      where: { id },
+      relations: {
+        author: true,
+      },
+    });
     if (post) {
       return post;
     }

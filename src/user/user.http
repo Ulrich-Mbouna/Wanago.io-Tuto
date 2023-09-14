@@ -4,9 +4,14 @@ POST localhost:3000/authentication/register
 Content-Type: application/json
 
 {
-  "name": "Mbouna1",
+  "name": "Mbouna 1",
   "email": "msus1@gmail.com",
-  "password": "123456"
+  "password": "1234567",
+  "address": {
+    "street": "Name of the Street",
+    "city": "Name of the city",
+    "country": "Name of the country"
+  }
 }
 
 ### Login user with email and password
@@ -15,11 +20,11 @@ Content-Type: application/json
 
 {
   "email": "msus1@gmail.com",
-  "password": "123456"
+  "password": "1234567"
 }
 
 ### Get User by ID
-GET localhost:3000/user/2
+GET localhost:3000/users/2
 
 
 ### Get Authenticate User

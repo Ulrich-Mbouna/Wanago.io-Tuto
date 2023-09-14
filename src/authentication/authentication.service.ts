@@ -8,7 +8,7 @@ import { PostgresErrorCodes } from '../database/PostgresErrorCodes.enum';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TokenPayload } from './tokenPayload.interface';
-import {User} from "../user/entities/user.entity";
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class AuthenticationService {
@@ -73,13 +73,13 @@ export class AuthenticationService {
 
     if (!isSamePassword) {
       throw new HttpException(
-        'Wrong Credentials provides',
+        'Wrong Credentials provides from compare',
         HttpStatus.BAD_REQUEST,
       );
     }
   }
 
   public getCookieForLogOut() {
-    return 'Authentication=; HttpOnly; Path=/; Max-Age=0'
-}
+    return 'Authentication=; HttpOnly; Path=/; Max-Age=0';
+  }
 }
