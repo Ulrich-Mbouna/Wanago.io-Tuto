@@ -8,25 +8,21 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import mockJwtService from '../utils/mocks/jwt.service';
 import mockConfigService from '../utils/mocks/config.service';
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import mockUser from '../utils/mocks/user.mock';
 
-jest.mock('bcrypt', () => ({
-  async compare(): Promise<boolean> {
-    return await new Promise((resolve) => resolve(true));
-  },
-}));
+jest.mock('bcrypt');
 
 describe('AuthenticationService', () => {
   let authenticationService: AuthenticationService;
   let userService: UserService;
   let userData: User;
+  let bcryptCompare: jest.Mock;
   let findUser: jest.Mock;
   beforeEach(async () => {
-    jest
-      .spyOn(bcrypt, 'compare')
-      .mockImplementation(() => Promise.resolve(true));
-    const userData = { ...mockUser };
+    bcryptCompare = jest.fn().mockReturnValue(true);
+    (bcrypt.compare as jest.Mock) = bcryptCompare;
+    userData = { ...mockUser };
     findUser = jest.fn().mockResolvedValue(userData);
     const userRepository = {
       findOne: findUser,
@@ -38,7 +34,7 @@ describe('AuthenticationService', () => {
         AuthenticationService,
         {
           provide: getRepositoryToken(User),
-          useValue: {},
+          useValue: userRepository,
         },
         {
           provide: JwtService,
@@ -78,7 +74,7 @@ describe('AuthenticationService', () => {
   describe('When getting authenticate user data', () => {
     it('should get user by email', async () => {
       const getByEmailSpy = jest.spyOn(userService, 'getByEmail');
-      const getByIdSpy = jest.spyOn(userService, 'getById');
+      // const getByIdSpy = jest.spyOn(userService, 'getById');
 
       await authenticationService.getAuthenticateUser(
         'msus1@gmail.com',
@@ -89,9 +85,7 @@ describe('AuthenticationService', () => {
 
     describe('And password is invalid', () => {
       beforeEach(() => {
-        jest
-          .spyOn(bcrypt, 'compare')
-          .mockImplementation(() => Promise.resolve(false));
+        bcryptCompare.mockReturnValue(false);
       });
 
       it('Should throw ans error', async () => {
@@ -106,10 +100,7 @@ describe('AuthenticationService', () => {
 
     describe('And password is valid', () => {
       beforeEach(async () => {
-        // bcryptCompare.mockReturnValue(true);
-        jest
-          .spyOn(bcrypt, 'compare')
-          .mockImplementation(() => Promise.resolve(true));
+        bcryptCompare.mockReturnValue(true);
       });
       describe('And the use is found in database', () => {
         beforeEach(async () => {
