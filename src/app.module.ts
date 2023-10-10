@@ -8,10 +8,11 @@ import { DatabaseModule } from './database/database.module';
 import { UserModule } from './user/user.module';
 import { AuthenticationModule } from './authentication/authentication.module';
 import * as Joi from '@hapi/joi';
-import ExceptionLoggerFilter from "./utils/exceptionLogger.filter";
+import ExceptionLoggerFilter from './utils/exceptionLogger.filter';
 import { APP_FILTER } from '@nestjs/core';
 import { AddressModule } from './address/address.module';
 import { CategoryModule } from './category/category.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -28,6 +29,8 @@ import { CategoryModule } from './category/category.module';
         AWS_REGION: Joi.string().required(),
         AWS_ACCESS_KEY_ID: Joi.string().required(),
         AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+        AWS_PUBLIC_BUCKET_NAME: Joi.string().required(),
+        AWS_PRIVATE_BUCKET_NAME: Joi.string().required(),
         PORT: Joi.number(),
       }),
     }),
@@ -36,6 +39,7 @@ import { CategoryModule } from './category/category.module';
     AuthenticationModule,
     AddressModule,
     CategoryModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [
@@ -43,9 +47,9 @@ import { CategoryModule } from './category/category.module';
     {
       provide: APP_FILTER,
       useClass: ExceptionLoggerFilter,
-  }],
+    },
+  ],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource) {
-  }
+  constructor(private dataSource: DataSource) {}
 }
