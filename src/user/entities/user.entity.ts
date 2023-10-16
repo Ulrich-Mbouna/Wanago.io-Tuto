@@ -6,7 +6,7 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { Address } from '../../address/entities/address.entity';
 import Post from '../../posts/entities/post.entity';
 import { PublicFile } from '../../files/publicFile.entity';
@@ -36,6 +36,11 @@ export class User {
   @JoinColumn()
   @Expose()
   public address: Address;
+
+  @Column({
+    nullable: true,
+  })
+  public currentHashedRefreshToken?: string;
 
   @OneToMany(() => Post, (post: Post) => post.author)
   public posts?: Post[];

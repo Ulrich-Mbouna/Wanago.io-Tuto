@@ -21,7 +21,7 @@ export class CategoryService {
   }
 
   findAll() {
-    return `This action returns all category`;
+    return this.categoryRepository.find();
   }
 
   async findOne(id: number) {
@@ -45,6 +45,6 @@ export class CategoryService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} category`;
+    return this.categoryRepository.delete(id);
   }
 }

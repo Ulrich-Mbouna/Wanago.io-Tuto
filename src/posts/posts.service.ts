@@ -27,6 +27,12 @@ export class PostsService {
   async getAllPosts() {
     return this.postRepository.find({ relations: ['author'] });
   }
+  async getPostsWithParagraph(paragraph: string) {
+    return this.postRepository.query(
+      'SELECT * FROM post WHERE $1= ANY(paragraphs)',
+      [paragraph],
+    );
+  }
 
   async getPostById(id: number) {
     const post = this.postRepository.findOne({

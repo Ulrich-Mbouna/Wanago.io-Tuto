@@ -1,12 +1,16 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserNotFoundException } from './exception/userNotFound.exception';
 import { FilesService } from '../files/files.service';
 import { PrivateFilesService } from '../files/privateFiles.service';
-import { ListObjectsCommand } from '@aws-sdk/client-s3';
+import bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -14,7 +18,25 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
     private readonly fileService: FilesService,
     private readonly privateFileService: PrivateFilesService,
+    private readonly dataSource: DataSource,
   ) {}
+
+  async setCurrentRefreshToken(refreshToken: string, userId: number) {
+    const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+
+    await this.userRepository.update(userId, {
+      currentHashedRefreshToken,
+    });
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return this.userRepository.find({
+      order: {
+        id: 'ASC',
+      },
+    });
+  }
+
   async getByEmail(email: string): Promise<User | undefined> {
     const user = await this.userRepository.findOne({ where: { email } });
     if (user) {
@@ -22,6 +44,7 @@ export class UserService {
     }
     throw new UserNotFoundException('email', email);
   }
+
   async getById(id: number): Promise<User | undefined> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (user) {
@@ -29,6 +52,20 @@ export class UserService {
     }
     throw new UserNotFoundException('id', id);
   }
+
+  async getUserIfRefreshTokenMatches(refreshToken: string, userId: number) {
+    const user = await this.getById(userId);
+
+    const isRefreshTokenValid = bcrypt.compare(
+      refreshToken,
+      user.currentHashedRefreshToken,
+    );
+
+    if (isRefreshTokenValid) {
+      return user;
+    }
+  }
+
   async create(createUserDto: CreateUserDto) {
     const newUser = this.userRepository.create(createUserDto);
     await this.userRepository.save(newUser);
@@ -56,15 +93,28 @@ export class UserService {
   }
 
   async deleteAvatar(userId: number) {
+    const queryRunner = this.dataSource.createQueryRunner();
     const user = await this.getById(userId);
     const fileId = user.avatar?.id;
 
     if (fileId) {
-      await this.userRepository.update(userId, {
-        ...user,
-        avatar: null,
-      });
-      await this.fileService.deletePublicFile(fileId);
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      try {
+        await queryRunner.manager.update(User, userId, {
+          ...user,
+          avatar: null,
+        });
+        await this.fileService.deletePublicFile(fileId);
+
+        await queryRunner.commitTransaction();
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw new InternalServerErrorException();
+      } finally {
+        await queryRunner.release();
+      }
     }
   }
 
@@ -107,5 +157,22 @@ export class UserService {
     }
 
     throw new UserNotFoundException('id', userId);
+  }
+
+  async deleteUser(userId: number) {
+    const user = await this.getById(userId);
+
+    if (!user) {
+      throw new UserNotFoundException('id', userId);
+    }
+    return await this.userRepository.delete({
+      id: userId,
+    });
+  }
+
+  async removeRefreshToken(userId: number) {
+    return this.userRepository.update(userId, {
+      currentHashedRefreshToken: null,
+    });
   }
 }

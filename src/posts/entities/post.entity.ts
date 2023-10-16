@@ -4,12 +4,14 @@ import {
   Column,
   ManyToOne,
   ManyToMany,
-  JoinTable
-} from "typeorm";
-import { User } from "../../user/entities/user.entity";
-import { Category } from "../../category/entities/category.entity";
+  JoinTable,
+  Index,
+} from 'typeorm';
+import { User } from '../../user/entities/user.entity';
+import { Category } from '../../category/entities/category.entity';
 
 @Entity()
+@Index(['id', 'author'])
 export default class Post {
   @PrimaryGeneratedColumn()
   public id: number;
@@ -17,8 +19,8 @@ export default class Post {
   @Column()
   public title: string;
 
-  @Column()
-  public content: string;
+  @Column('text', { array: true })
+  public paragraphs: string[];
 
   @Column({ nullable: true })
   public category?: string;

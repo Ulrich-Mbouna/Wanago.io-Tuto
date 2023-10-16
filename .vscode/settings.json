@@ -10,5 +10,6 @@
             "name": "posgres",
             "password": ""
         }
-    ]
+    ],
+    "nuxt.isNuxtApp": false
 }

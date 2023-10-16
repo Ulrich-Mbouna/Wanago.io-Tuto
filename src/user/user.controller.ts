@@ -32,6 +32,11 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
+  @Get()
+  async getAllUsers() {
+    return await this.userService.getAllUsers();
+  }
+
   @Post('avatar')
   @UseInterceptors(FileInterceptor('file'))
   @UseGuards(JwtAuthenticationGuard)
@@ -91,5 +96,10 @@ export class UserController {
     );
 
     return new StreamableFile(file.stream);
+  }
+
+  @Delete(':id')
+  async deleteUser(@Param('id') id: number) {
+    return this.userService.deleteUser(id);
   }
 }
