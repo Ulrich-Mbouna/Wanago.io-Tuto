@@ -15,6 +15,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import JwtAuthenticationGuard from '../authentication/jwt-authentication.guard';
 import { RequestWithUser } from '../authentication/requestWithUser.interface';
+import { PaginationParams } from '../utils/paginationParams';
 
 @Controller('posts')
 export class PostsController {
@@ -30,11 +31,14 @@ export class PostsController {
   }
 
   @Get()
-  getAllPost(@Query('search') search: string) {
+  async getAllPost(
+    @Query('search') search: string,
+    @Query() { offset, limit }: PaginationParams,
+  ) {
     if (search) {
-      return this.postsService.searchForPosts(search);
+      return this.postsService.searchForPosts(search, offset, limit);
     }
-    return this.postsService.getAllPosts();
+    return this.postsService.getAllPosts(offset, limit);
   }
 
   @Get(':id')

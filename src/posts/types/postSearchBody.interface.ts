@@ -4,3 +4,5 @@ interface PostSearchBody {
   content: string;
   authorId: number;
 }
+
+export default PostSearchBody;

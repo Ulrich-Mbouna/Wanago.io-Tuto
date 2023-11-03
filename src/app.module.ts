@@ -13,6 +13,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { AddressModule } from './address/address.module';
 import { CategoryModule } from './category/category.module';
 import { SearchModule } from './search/search.module';
+import { SubscribersModule } from './subscribers/subscribers.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { SearchModule } from './search/search.module';
     AddressModule,
     CategoryModule,
     SearchModule,
+    SubscribersModule,
   ],
   controllers: [AppController],
   providers: [

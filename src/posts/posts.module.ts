@@ -4,7 +4,7 @@ import { PostsController } from './posts.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import Post from './entities/post.entity';
 import { SearchModule } from '../search/search.module';
-import { PostSearchService } from './postSerach.service';
+import { PostSearchService } from './postSearch.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Post]), SearchModule],

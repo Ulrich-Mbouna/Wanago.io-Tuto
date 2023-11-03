@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import Post from './entities/post.entity';
+import PostSearchBody from './types/postSearchBody.interface';
+import PostSearchResult from './types/postSearchResult';
 
 @Injectable()
 export class PostSearchService {
@@ -21,7 +23,10 @@ export class PostSearchService {
   }
 
   async search(text: string) {
-    const { hits } = await this.elasticSearchService.search<PostSearchBody>({
+    const { hits } = await this.elasticSearchService.search<
+      PostSearchBody,
+      PostSearchResult
+    >({
       index: this.index,
       query: {
         multi_match: {
@@ -40,6 +45,28 @@ export class PostSearchService {
       query: {
         match: {
           id: postId,
+        },
+      },
+    });
+  }
+
+  async update(post: Post) {
+    const newPost: PostSearchBody = {
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      authorId: post.author.id,
+    };
+
+    const script = Object.entries(newPost).reduce((result, [key, value]) => {
+      return `${result} ctx._source.${key}='${value}'`;
+    }, '');
+
+    return this.elasticSearchService.updateByQuery({
+      index: this.index,
+      query: {
+        match: {
+          id: post.id,
         },
       },
     });

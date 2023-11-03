@@ -10,7 +10,6 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  const configService = app.get(ConfigService);
 
   await app.listen(3005);
 }

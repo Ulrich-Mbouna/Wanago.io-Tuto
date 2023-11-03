@@ -20,8 +20,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 import { Express } from 'express';
 import { RequestWithUser } from '../authentication/requestWithUser.interface';
-import { createReadStream } from 'fs';
-import { ReadStream } from 'typeorm/browser/platform/BrowserPlatformTools';
 
 @Controller('users')
 export class UserController {
@@ -33,6 +31,7 @@ export class UserController {
   }
 
   @Get()
+  @UseGuards(JwtAuthenticationGuard)
   async getAllUsers() {
     return await this.userService.getAllUsers();
   }

@@ -1,3 +1,5 @@
+import PostSearchBody from './postSearchBody.interface';
+
 interface PostSearchResult {
   hits: {
     total: number;
@@ -6,3 +8,5 @@ interface PostSearchResult {
     }>;
   };
 }
+
+export default PostSearchResult;

@@ -15,7 +15,7 @@ Content-Type: application/json
 }
 
 ### Login user with email and password
-POST localhost:3000/authentication/log-in
+POST localhost:3005/authentication/log-in
 Content-Type: application/json
 
 {
@@ -28,7 +28,7 @@ GET localhost:3000/users/2
 
 
 ### Get Authenticate User
-GET localhost:3000/authentication
+GET localhost:3005/authentication
 
 ### Logout User
 POST localhost:3000/authentication/log-out
