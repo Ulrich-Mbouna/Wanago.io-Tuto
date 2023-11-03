@@ -18,10 +18,8 @@ import { ClientProxyFactory, Transport } from '@nestjs/microservices';
         return ClientProxyFactory.create({
           transport: Transport.RMQ,
           options: {
-            host: host,
             urls: [`amqp://${user}:${password}@${host}`],
             queue: queueName,
-            noAck: false,
             queueOptions: {
               durable: true,
             },
