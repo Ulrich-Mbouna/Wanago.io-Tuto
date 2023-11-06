@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common';
+export interface Subscriber {
+  id: number;
+  email: string;
+  name: string;
+}
 
-@Injectable()
-export class SubscribersService {}
+export default Subscriber;
