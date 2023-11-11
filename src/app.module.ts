@@ -14,6 +14,7 @@ import { AddressModule } from './address/address.module';
 import { CategoryModule } from './category/category.module';
 import { SearchModule } from './search/search.module';
 import { SubscribersModule } from './subscribers/subscribers.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { SubscribersModule } from './subscribers/subscribers.module';
     CategoryModule,
     SearchModule,
     SubscribersModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [

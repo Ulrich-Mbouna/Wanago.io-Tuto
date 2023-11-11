@@ -4,8 +4,8 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
-  OneToMany,
-} from 'typeorm';
+  OneToMany, RelationOptions
+} from "typeorm";
 import { Exclude, Expose } from 'class-transformer';
 import { Address } from '../../address/entities/address.entity';
 import Post from '../../posts/entities/post.entity';
