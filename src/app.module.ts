@@ -15,7 +15,8 @@ import { CategoryModule } from './category/category.module';
 import { SearchModule } from './search/search.module';
 import { SubscribersModule } from './subscribers/subscribers.module';
 import { CommentModule } from './comment/comment.module';
-
+import { ProductModule } from './product/product.module';
+import { ProductCategoryModule } from './product-category/product-category.module';
 @Module({
   imports: [
     PostsModule,
@@ -46,6 +47,8 @@ import { CommentModule } from './comment/comment.module';
     SearchModule,
     SubscribersModule,
     CommentModule,
+    ProductModule,
+    ProductCategoryModule,
   ],
   controllers: [AppController],
   providers: [
