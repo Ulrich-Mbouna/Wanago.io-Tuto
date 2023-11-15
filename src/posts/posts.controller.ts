@@ -20,6 +20,7 @@ import { RequestWithUser } from '../authentication/requestWithUser.interface';
 import { PaginationParams } from '../utils/paginationParams';
 import { CacheInterceptor, CacheTTL, CacheKey } from '@nestjs/cache-manager';
 import { GET_POSTS_CACHE_KEY } from './caches/postCacheKey.constant';
+import { HttpCacheInterceptor } from './caches/httpCache.interceptor.js';
 
 @Controller('posts')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -35,7 +36,7 @@ export class PostsController {
     return this.postsService.createPost(createPostDto, request.user);
   }
 
-  @UseInterceptors(CacheInterceptor)
+  @UseInterceptors(HttpCacheInterceptor)
   @CacheKey(GET_POSTS_CACHE_KEY)
   @CacheTTL(120)
   @Get()

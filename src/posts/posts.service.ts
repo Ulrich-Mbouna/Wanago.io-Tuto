@@ -22,7 +22,6 @@ export class PostsService {
 
   async clearCache() {
     const keys = await this.cacheManager.store.keys();
-
     keys.forEach((key) => {
       if (key.startsWith(GET_POSTS_CACHE_KEY)) {
         this.cacheManager.del(key);

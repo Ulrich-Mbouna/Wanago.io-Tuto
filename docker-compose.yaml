@@ -100,6 +100,21 @@ services:
       - data03:/usr/share/elasticsearch/data
     networks:
       - elastic
+  redis:
+    image: "redis:alpine"
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis:/data
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
 
 volumes:
   data01:
@@ -107,6 +122,8 @@ volumes:
   data02:
     driver: local
   data03:
+    driver: local
+  redis:
     driver: local
 networks:
   postgres:

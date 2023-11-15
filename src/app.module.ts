@@ -17,6 +17,9 @@ import { SubscribersModule } from './subscribers/subscribers.module';
 import { CommentModule } from './comment/comment.module';
 import { ProductModule } from './product/product.module';
 import { ProductCategoryModule } from './product-category/product-category.module';
+import { CacheModule } from '@nestjs/cache-manager';
+
+import * as redisStore from 'cache-manager-redis-store';
 @Module({
   imports: [
     PostsModule,
@@ -36,6 +39,8 @@ import { ProductCategoryModule } from './product-category/product-category.modul
         AWS_SECRET_ACCESS_KEY: Joi.string().required(),
         AWS_PUBLIC_BUCKET_NAME: Joi.string().required(),
         AWS_PRIVATE_BUCKET_NAME: Joi.string().required(),
+        REDIS_HOST: Joi.string().required(),
+        REDIS_PORT: Joi.number().required(),
         PORT: Joi.number(),
       }),
     }),
