@@ -17,9 +17,11 @@ import { SubscribersModule } from './subscribers/subscribers.module';
 import { CommentModule } from './comment/comment.module';
 import { ProductModule } from './product/product.module';
 import { ProductCategoryModule } from './product-category/product-category.module';
-import { CacheModule } from '@nestjs/cache-manager';
+import { EmailModule } from './email/email.module';
 
-import * as redisStore from 'cache-manager-redis-store';
+import { ScheduleModule } from '@nestjs/schedule';
+import { EmailSchedulingService } from './email/email-scheduling/email-scheduling.service';
+
 @Module({
   imports: [
     PostsModule,
@@ -41,6 +43,9 @@ import * as redisStore from 'cache-manager-redis-store';
         AWS_PRIVATE_BUCKET_NAME: Joi.string().required(),
         REDIS_HOST: Joi.string().required(),
         REDIS_PORT: Joi.number().required(),
+        EMAIL_SERVICE: Joi.string().required(),
+        EMAIL_USER: Joi.string().required(),
+        EMAIL_PASSWORD: Joi.string().required(),
         PORT: Joi.number(),
       }),
     }),
@@ -54,6 +59,8 @@ import * as redisStore from 'cache-manager-redis-store';
     CommentModule,
     ProductModule,
     ProductCategoryModule,
+    EmailModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [
