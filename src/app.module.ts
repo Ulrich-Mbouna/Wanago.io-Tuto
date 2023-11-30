@@ -21,6 +21,10 @@ import { EmailModule } from './email/email.module';
 
 import { ScheduleModule } from '@nestjs/schedule';
 import { EmailSchedulingService } from './email/email-scheduling/email-scheduling.service';
+import { ChatModule } from './chat/chat.module';
+import { MessageModule } from './message/message.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -61,6 +65,11 @@ import { EmailSchedulingService } from './email/email-scheduling/email-schedulin
     ProductCategoryModule,
     EmailModule,
     ScheduleModule.forRoot(),
+    ChatModule,
+    MessageModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
   ],
   controllers: [AppController],
   providers: [
