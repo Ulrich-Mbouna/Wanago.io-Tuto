@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PostsModule } from './posts/posts.module';
 import { DataSource } from 'typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { UserModule } from './user/user.module';
 import { AuthenticationModule } from './authentication/authentication.module';
@@ -25,6 +25,13 @@ import { ChatModule } from './chat/chat.module';
 import { MessageModule } from './message/message.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { GraphQLModule } from '@nestjs/graphql';
+import * as process from 'process';
+import {
+  ApolloDriver,
+  ApolloDriverAsyncConfig,
+  ApolloDriverConfig,
+} from '@nestjs/apollo';
 
 @Module({
   imports: [
@@ -50,6 +57,7 @@ import { join } from 'path';
         EMAIL_SERVICE: Joi.string().required(),
         EMAIL_USER: Joi.string().required(),
         EMAIL_PASSWORD: Joi.string().required(),
+        GRAPHQL_PLAYGROUND: Joi.number(),
         PORT: Joi.number(),
       }),
     }),
@@ -67,8 +75,15 @@ import { join } from 'path';
     ScheduleModule.forRoot(),
     ChatModule,
     MessageModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        playground: Boolean(configService.get('GRAPHQL_PLAYGROUND')),
+        autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+        include: [PostsModule],
+      }),
     }),
   ],
   controllers: [AppController],
