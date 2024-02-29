@@ -6,6 +6,7 @@ import {
   Args,
   Context,
   Parent,
+  Info,
 } from '@nestjs/graphql';
 import { PostsService } from '../posts.service';
 import { Post } from '../models/post.model';
@@ -16,6 +17,12 @@ import { RequestWithUser } from '../../authentication/requestWithUser.interface'
 import { UserService } from '../../user/user.service';
 import { User } from '../../user/models/user.model';
 import PostsLoader from '../loaders/posts.loader';
+import { GraphQLResolveInfo } from 'graphql/type';
+import {
+  parseResolveInfo,
+  ResolveTree,
+  simplifyParsedResolveInfoFragmentWithType,
+} from 'graphql-parse-resolve-info';
 
 @Resolver(() => Post)
 export class PostResolver {
@@ -26,8 +33,16 @@ export class PostResolver {
   ) {}
 
   @Query(() => [Post])
-  async posts() {
-    const posts = await this.postsService.getAllPosts();
+  async posts(@Info() info: GraphQLResolveInfo) {
+    const parsedInfo = parseResolveInfo(info) as ResolveTree;
+    const simplifiedInfo = simplifyParsedResolveInfoFragmentWithType(
+      parsedInfo,
+      info.returnType,
+    );
+    const posts =
+      'author' in simplifiedInfo
+        ? await this.postsService.getPostsWithAuthors()
+        : await this.postsService.getAllPosts();
 
     return posts.items;
   }

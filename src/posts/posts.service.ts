@@ -39,27 +39,34 @@ export class PostsService {
     return newPost;
   }
 
-  async getAllPosts(offset?: number, limit?: number, startId?: number) {
-    console.log('Ici post Service');
+  async getAllPosts(
+    offset?: number,
+    limit?: number,
+    startId?: number,
+    options?: FindManyOptions<Post>,
+  ) {
+    console.log('Get All');
     const where: FindManyOptions<Post>['where'] = {};
-    let seperateCount = 0;
+    let separateCount = 0;
 
     if (startId) {
       where.id = MoreThan(startId);
-      seperateCount = await this.postRepository.count();
+      separateCount = await this.postRepository.count();
     }
 
     const [items, count] = await this.postRepository.findAndCount({
+      where,
       relations: ['author'],
       order: {
         id: 'ASC',
       },
       take: limit,
       skip: offset,
+      ...options,
     });
 
     return {
-      count: startId ? seperateCount : count,
+      count: startId ? separateCount : count,
       items,
     };
   }
@@ -113,6 +120,15 @@ export class PostsService {
 
     return this.postRepository.find({
       where: { id: In(ids) },
+    });
+  }
+
+  async getPostsWithAuthors(offset?: number, limit?: number, startId?: number) {
+    console.log('With Author');
+    return this.getAllPosts(offset, limit, startId, {
+      relations: {
+        author: true,
+      },
     });
   }
 }
