@@ -7,6 +7,7 @@ import {
   JoinTable,
   Index,
   OneToMany,
+  RelationId,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Category } from '../../category/entities/category.entity';
@@ -30,8 +31,12 @@ export default class Post {
   @Column({ nullable: true })
   public category?: string;
 
+  @Index('post_authorId_index')
   @ManyToOne(() => User, (author: User) => author.posts)
   public author: User;
+
+  @RelationId((post: Post) => post.author)
+  public authorId: number;
 
   @ManyToMany(() => Category, (category: Category) => category.posts)
   @JoinTable()

@@ -9,10 +9,13 @@ import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PostResolver } from './resolvers/post.resolver';
+import { UserModule } from '../user/user.module';
+import PostsLoader from './loaders/posts.loader';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Post]),
+    UserModule,
     SearchModule,
     CacheModule.registerAsync({
       imports: [ConfigModule],
@@ -26,6 +29,6 @@ import { PostResolver } from './resolvers/post.resolver';
     }),
   ],
   controllers: [PostsController],
-  providers: [PostsService, PostSearchService, PostResolver],
+  providers: [PostsService, PostSearchService, PostResolver, PostsLoader],
 })
 export class PostsModule {}

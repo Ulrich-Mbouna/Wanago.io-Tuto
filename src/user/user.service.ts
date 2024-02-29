@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserNotFoundException } from './exception/userNotFound.exception';
 import { FilesService } from '../files/files.service';
@@ -51,6 +51,9 @@ export class UserService {
       return user;
     }
     throw new UserNotFoundException('id', id);
+  }
+  async getByIds(ids: number[]): Promise<User[] | undefined> {
+    return await this.userRepository.find({ where: { id: In(ids) } });
   }
 
   async getUserIfRefreshTokenMatches(refreshToken: string, userId: number) {
