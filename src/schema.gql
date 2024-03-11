@@ -14,7 +14,14 @@ type Post {
   content: String!
   authorId: Int!
   author: User!
+  createdAt: Timestamp!
+  scheduledDate: Timestamp
 }
+
+"""
+`Date` type as integer. Type represents date and time as number of milliseconds from start of UNIX epoch.
+"""
+scalar Timestamp
 
 type Query {
   posts: [Post!]!
@@ -28,6 +35,7 @@ input CreatePostInput {
   title: String!
   paragraphs: [String!]!
   content: String!
+  scheduledDate: Timestamp
 }
 
 type Subscription {

@@ -34,6 +34,7 @@ import {
 } from '@nestjs/apollo';
 import { PubSubModule } from './pubSub/pubSub.module';
 import { Context } from '@hapi/joi';
+import { Timestamp } from './Scalar/timestamp.scalar';
 
 @Module({
   imports: [
@@ -91,6 +92,9 @@ import { Context } from '@hapi/joi';
           'graphql-ws': true,
           // 'subscriptions-transport-ws': true,
         },
+        buildSchemaOptions: {
+          dateScalarMode: 'timestamp',
+        },
       }),
     }),
   ],
@@ -101,6 +105,7 @@ import { Context } from '@hapi/joi';
       provide: APP_FILTER,
       useClass: ExceptionLoggerFilter,
     },
+    Timestamp,
   ],
 })
 export class AppModule {

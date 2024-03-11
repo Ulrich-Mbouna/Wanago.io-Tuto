@@ -8,6 +8,7 @@ import {
   Index,
   OneToMany,
   RelationId,
+  CreateDateColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Category } from '../../category/entities/category.entity';
@@ -44,4 +45,13 @@ export default class Post {
 
   @OneToMany(() => Comment, (comment: Comment) => comment.post)
   public comments: Comment[];
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
+  scheduledDate?: Date;
 }
