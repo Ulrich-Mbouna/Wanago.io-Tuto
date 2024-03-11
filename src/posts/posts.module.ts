@@ -11,6 +11,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PostResolver } from './resolvers/post.resolver';
 import { UserModule } from '../user/user.module';
 import PostsLoader from './loaders/posts.loader';
+import { PostSubscriptionResolver } from './resolvers/post-subscription.resolver';
 
 @Module({
   imports: [
@@ -29,6 +30,12 @@ import PostsLoader from './loaders/posts.loader';
     }),
   ],
   controllers: [PostsController],
-  providers: [PostsService, PostSearchService, PostResolver, PostsLoader],
+  providers: [
+    PostsService,
+    PostSearchService,
+    PostResolver,
+    PostsLoader,
+    PostSubscriptionResolver,
+  ],
 })
 export class PostsModule {}

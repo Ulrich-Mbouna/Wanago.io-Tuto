@@ -32,6 +32,8 @@ import {
   ApolloDriverAsyncConfig,
   ApolloDriverConfig,
 } from '@nestjs/apollo';
+import { PubSubModule } from './pubSub/pubSub.module';
+import { Context } from '@hapi/joi';
 
 @Module({
   imports: [
@@ -75,6 +77,7 @@ import {
     ScheduleModule.forRoot(),
     ChatModule,
     MessageModule,
+    PubSubModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       imports: [ConfigModule],
@@ -83,6 +86,11 @@ import {
         playground: Boolean(configService.get('GRAPHQL_PLAYGROUND')),
         autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
         include: [PostsModule],
+        // installSubscriptionHandlers: true,
+        subscriptions: {
+          'graphql-ws': true,
+          // 'subscriptions-transport-ws': true,
+        },
       }),
     }),
   ],

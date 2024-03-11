@@ -1,6 +1,6 @@
 
 ### Create new User
-POST localhost:3000/authentication/register
+POST localhost:3005/authentication/register
 Content-Type: application/json
 
 {

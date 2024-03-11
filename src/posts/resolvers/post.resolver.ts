@@ -7,10 +7,11 @@ import {
   Context,
   Parent,
   Info,
+  Subscription,
 } from '@nestjs/graphql';
 import { PostsService } from '../posts.service';
 import { Post } from '../models/post.model';
-import { UseGuards } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import { GrapghqlJwtAuthGuard } from '../../authentication/grapghql-jwt-auth.guard';
 import { CreatePostInput } from '../inputs/post.input';
 import { RequestWithUser } from '../../authentication/requestWithUser.interface';
@@ -23,13 +24,17 @@ import {
   ResolveTree,
   simplifyParsedResolveInfoFragmentWithType,
 } from 'graphql-parse-resolve-info';
+import { RedisPubSub } from 'graphql-redis-subscriptions';
+import { PUB_SUB } from '../../pubSub/pubSub.module';
+
+const POST_ADDED_EVENT = 'postAdded';
 
 @Resolver(() => Post)
 export class PostResolver {
   constructor(
     private readonly postsService: PostsService,
-    private readonly usersService: UserService,
     private readonly postsLoader: PostsLoader,
+    @Inject(PUB_SUB) private pubSub: RedisPubSub,
   ) {}
 
   @Query(() => [Post])
@@ -53,16 +58,26 @@ export class PostResolver {
     @Args('input') createPostInput: CreatePostInput,
     @Context() context: { req: RequestWithUser },
   ) {
-    return await this.postsService.createPost(
+    console.log({ createPostInput });
+    const newPost = await this.postsService.createPost(
       createPostInput,
       context.req.user,
     );
+
+    await this.pubSub.publish(POST_ADDED_EVENT, { postAdded: newPost });
+
+    return newPost;
   }
 
-  @ResolveField('author', () => User)
-  async getAuthor(@Parent() post: Post) {
-    const { authorId } = post;
+  // @ResolveField('author', () => User)
+  // async getAuthor(@Parent() post: Post) {
+  //   const { authorId } = post;
+  //
+  //   return this.postsLoader.batchAuthors.load(authorId);
+  // }
 
-    return this.postsLoader.batchAuthors.load(authorId);
+  @Subscription((returns) => Post, { name: 'newPostAdded' })
+  postAdded() {
+    return this.pubSub.asyncIterator(POST_ADDED_EVENT);
   }
 }

@@ -11,6 +11,7 @@ export class PostSearchService {
   constructor(private readonly elasticSearchService: ElasticsearchService) {}
 
   async indexPost(post: Post) {
+    console.log('POst from indexOdf', { post });
     return this.elasticSearchService.index<PostSearchBody>({
       index: this.index,
       document: {

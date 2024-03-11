@@ -29,11 +29,13 @@ export class PostsService {
     });
   }
   async createPost(post: CreatePostDto, user: User) {
+    console.log({ post });
     const newPost = this.postRepository.create({
       ...post,
       author: user,
     });
     await this.postRepository.save(newPost);
+    console.log({ newPost });
     await this.postSearchService.indexPost(newPost);
     await this.clearCache();
     return newPost;
