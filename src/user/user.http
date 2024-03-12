@@ -4,8 +4,8 @@ POST localhost:3005/authentication/register
 Content-Type: application/json
 
 {
-  "name": "Mbouna 1",
-  "email": "msus1@gmail.com",
+  "name": "Mbouna 2",
+  "email": "msus2@gmail.com",
   "password": "1234567",
   "address": {
     "street": "Name of the Street",
@@ -19,7 +19,7 @@ POST localhost:3005/authentication/log-in
 Content-Type: application/json
 
 {
-  "email": "msus1@gmail.com",
+  "email": "msus2@gmail.com",
   "password": "1234567"
 }
 

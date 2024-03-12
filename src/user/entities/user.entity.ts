@@ -4,8 +4,9 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
-  OneToMany, RelationOptions
-} from "typeorm";
+  OneToMany,
+  RelationOptions,
+} from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { Address } from '../../address/entities/address.entity';
 import Post from '../../posts/entities/post.entity';
@@ -54,4 +55,10 @@ export class User {
 
   @OneToMany(() => PrivateFile, (file: PrivateFile) => file.owner)
   public files: PrivateFile[];
+
+  @Column({ nullable: true })
+  public twoFactorAuthenticationSecret?: string;
+
+  @Column({ default: false })
+  isTwoFactorAuthenticationEnabled: boolean;
 }

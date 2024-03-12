@@ -21,15 +21,16 @@ import { PaginationParams } from '../utils/paginationParams';
 import { CacheInterceptor, CacheTTL, CacheKey } from '@nestjs/cache-manager';
 import { GET_POSTS_CACHE_KEY } from './caches/postCacheKey.constant';
 import { HttpCacheInterceptor } from './caches/httpCache.interceptor.js';
+import JwtTwoFactorGuard from '../authentication/jwt-two-factor.guard';
 
 @Controller('posts')
 @UseInterceptors(ClassSerializerInterceptor)
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
-  @UseGuards(JwtAuthenticationGuard)
+  @UseGuards(JwtTwoFactorGuard)
   @Post()
-  async create(
+  async createPost(
     @Body() createPostDto: CreatePostDto,
     @Req() request: RequestWithUser,
   ) {

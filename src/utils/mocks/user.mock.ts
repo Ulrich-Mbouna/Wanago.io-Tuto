@@ -1,6 +1,7 @@
 import { User } from '../../user/entities/user.entity';
 
 const mockUser: User = {
+  isTwoFactorAuthenticationEnabled: false,
   id: 1,
   email: 'msus1@gmail.com',
   name: 'John',

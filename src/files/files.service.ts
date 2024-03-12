@@ -41,6 +41,7 @@ export class FilesService {
     };
 
     try {
+      // @ts-ignore
       const results = await this.s3Client.send(new PutObjectCommand(params));
 
       const newFile = this.publicFileRepository.create({
