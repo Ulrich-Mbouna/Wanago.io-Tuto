@@ -12,6 +12,7 @@ import { PostResolver } from './resolvers/post.resolver';
 import { UserModule } from '../user/user.module';
 import PostsLoader from './loaders/posts.loader';
 import { PostSubscriptionResolver } from './resolvers/post-subscription.resolver';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { PostSubscriptionResolver } from './resolvers/post-subscription.resolver
       }),
       inject: [ConfigService],
     }),
+    PrismaModule,
   ],
   controllers: [PostsController],
   providers: [

@@ -402,3 +402,6 @@ dist
 
 # RabbitMQ
 rabbitmq.env
+
+#Prisma
+prisma/schema.prisma

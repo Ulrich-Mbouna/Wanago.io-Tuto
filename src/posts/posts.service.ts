@@ -11,14 +11,38 @@ import { FindOneParams } from '../utils/findOneParams';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { GET_POSTS_CACHE_KEY } from './caches/postCacheKey.constant';
+import { PrismaService } from '../prisma/prisma.service';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { PrismaError } from '../prisma/PrismaError';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(Post) private postRepository: Repository<Post>,
     private postSearchService: PostSearchService,
+    private readonly prismaService: PrismaService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
+
+  async getPosts() {
+    return this.prismaService.post.findMany();
+  }
+  async getPostByd(id: number) {
+    const post = await this.prismaService.post.findUnique({
+      where: { id },
+    });
+    if (!post) {
+      throw new PostNotFoundException(id);
+    }
+
+    return post;
+  }
+
+  async createPost(post: CreatePostDto) {
+    return this.prismaService.post.create({
+      data: post,
+    });
+  }
 
   async clearCache() {
     const keys = await this.cacheManager.store.keys();
@@ -28,109 +52,148 @@ export class PostsService {
       }
     });
   }
-  async createPost(post: CreatePostDto, user: User) {
-    console.log({ post });
-    const newPost = this.postRepository.create({
-      ...post,
-      author: user,
-    });
-    await this.postRepository.save(newPost);
-    console.log({ newPost });
-    await this.postSearchService.indexPost(newPost);
-    await this.clearCache();
-    return newPost;
-  }
 
-  async getAllPosts(
-    offset?: number,
-    limit?: number,
-    startId?: number,
-    options?: FindManyOptions<Post>,
-  ) {
-    console.log('Get All');
-    const where: FindManyOptions<Post>['where'] = {};
-    let separateCount = 0;
-
-    if (startId) {
-      where.id = MoreThan(startId);
-      separateCount = await this.postRepository.count();
+  async updatePost(id: number, post: UpdatePostDto) {
+    try {
+      return await this.prismaService.post.update({
+        where: {
+          id,
+        },
+        data: {
+          ...post,
+          id: undefined,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === PrismaError.RecordDoesNotExist
+      ) {
+        throw new PostNotFoundException(id);
+      }
+      throw error;
     }
-
-    const [items, count] = await this.postRepository.findAndCount({
-      where,
-      relations: ['author'],
-      order: {
-        id: 'ASC',
-      },
-      take: limit,
-      skip: offset,
-      ...options,
-    });
-
-    return {
-      count: startId ? separateCount : count,
-      items,
-    };
-  }
-  async getPostsWithParagraph(paragraph: string) {
-    return this.postRepository.query(
-      'SELECT * FROM post WHERE $1= ANY(paragraphs)',
-      [paragraph],
-    );
-  }
-
-  async getPostById(id: number) {
-    const post = this.postRepository.findOne({
-      where: { id },
-      relations: {
-        author: true,
-      },
-    });
-    if (post) {
-      return post;
-    }
-    throw new PostNotFoundException(id);
-  }
-
-  async updatePost(id: number, updatePostDto: UpdatePostDto) {
-    await this.postRepository.update(id, updatePostDto);
-    const updatePost = await this.getPostById(id);
-    if (updatePost) {
-      await this.clearCache();
-      return updatePost;
-    }
-    throw new PostNotFoundException(id);
   }
 
   async deletePost(id: number) {
-    const deleteResponse = await this.postRepository.delete(id);
-    if (!deleteResponse.affected) {
-      throw new PostNotFoundException(id);
+    try {
+      return this.prismaService.post.delete({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === PrismaError.RecordDoesNotExist
+      )
+        throw new PostNotFoundException(id);
+      throw error;
     }
-
-    await this.postSearchService.remove(id);
-    await this.clearCache();
   }
 
-  async searchForPosts(text: string, offset?: number, limit?: number) {
-    const results = await this.postSearchService.search(text);
-    const ids = results.map((result) => result.id);
-
-    if (!ids.length) {
-      return [];
-    }
-
-    return this.postRepository.find({
-      where: { id: In(ids) },
-    });
-  }
-
-  async getPostsWithAuthors(offset?: number, limit?: number, startId?: number) {
-    console.log('With Author');
-    return this.getAllPosts(offset, limit, startId, {
-      relations: {
-        author: true,
-      },
-    });
-  }
+  // async createPost(post: CreatePostDto, user: User) {
+  //   console.log({ post });
+  //   const newPost = this.postRepository.create({
+  //     ...post,
+  //     author: user,
+  //   });
+  //   await this.postRepository.save(newPost);
+  //   console.log({ newPost });
+  //   await this.postSearchService.indexPost(newPost);
+  //   await this.clearCache();
+  //   return newPost;
+  // }
+  //   async getAllPosts(
+  //     offset?: number,
+  //     limit?: number,
+  //     startId?: number,
+  //     options?: FindManyOptions<Post>,
+  //   ) {
+  //     console.log('Get All');
+  //     const where: FindManyOptions<Post>['where'] = {};
+  //     let separateCount = 0;
+  //
+  //     if (startId) {
+  //       where.id = MoreThan(startId);
+  //       separateCount = await this.postRepository.count();
+  //     }
+  //
+  //     const [items, count] = await this.postRepository.findAndCount({
+  //       where,
+  //       relations: ['author'],
+  //       order: {
+  //         id: 'ASC',
+  //       },
+  //       take: limit,
+  //       skip: offset,
+  //       ...options,
+  //     });
+  //
+  //     return {
+  //       count: startId ? separateCount : count,
+  //       items,
+  //     };
+  //   }
+  //   async getPostsWithParagraph(paragraph: string) {
+  //     return this.postRepository.query(
+  //       'SELECT * FROM post WHERE $1= ANY(paragraphs)',
+  //       [paragraph],
+  //     );
+  //   }
+  //
+  //   async getPostById(id: number) {
+  //     const post = this.postRepository.findOne({
+  //       where: { id },
+  //       relations: {
+  //         author: true,
+  //       },
+  //     });
+  //     if (post) {
+  //       return post;
+  //     }
+  //     throw new PostNotFoundException(id);
+  //   }
+  //
+  //   async updatePost(id: number, updatePostDto: UpdatePostDto) {
+  //     await this.postRepository.update(id, updatePostDto);
+  //     const updatePost = await this.getPostById(id);
+  //     if (updatePost) {
+  //       await this.clearCache();
+  //       return updatePost;
+  //     }
+  //     throw new PostNotFoundException(id);
+  //   }
+  //
+  //   async deletePost(id: number) {
+  //     const deleteResponse = await this.postRepository.delete(id);
+  //     if (!deleteResponse.affected) {
+  //       throw new PostNotFoundException(id);
+  //     }
+  //
+  //     await this.postSearchService.remove(id);
+  //     await this.clearCache();
+  //   }
+  //
+  //   async searchForPosts(text: string, offset?: number, limit?: number) {
+  //     const results = await this.postSearchService.search(text);
+  //     const ids = results.map((result) => result.id);
+  //
+  //     if (!ids.length) {
+  //       return [];
+  //     }
+  //
+  //     return this.postRepository.find({
+  //       where: { id: In(ids) },
+  //     });
+  //   }
+  //
+  //   async getPostsWithAuthors(offset?: number, limit?: number, startId?: number) {
+  //     console.log('With Author');
+  //     return this.getAllPosts(offset, limit, startId, {
+  //       relations: {
+  //         author: true,
+  //       },
+  //     });
+  //   }
 }

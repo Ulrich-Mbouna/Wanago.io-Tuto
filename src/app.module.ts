@@ -35,6 +35,7 @@ import {
 import { PubSubModule } from './pubSub/pubSub.module';
 import { Context } from '@hapi/joi';
 import { Timestamp } from './Scalar/timestamp.scalar';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -97,6 +98,7 @@ import { Timestamp } from './Scalar/timestamp.scalar';
         },
       }),
     }),
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [
