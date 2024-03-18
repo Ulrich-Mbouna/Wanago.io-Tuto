@@ -10,4 +10,6 @@ export class CreatePostDto {
 
   @IsString()
   content: string;
+
+  categoryIds?: number[];
 }

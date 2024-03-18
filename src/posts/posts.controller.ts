@@ -24,6 +24,8 @@ import { GET_POSTS_CACHE_KEY } from './caches/postCacheKey.constant';
 import { HttpCacheInterceptor } from './caches/httpCache.interceptor.js';
 import JwtTwoFactorGuard from '../authentication/jwt-two-factor.guard';
 import { FindOneParams } from '../utils/findOneParams';
+import { UserArgs } from '@prisma/client/runtime/library';
+import { User } from '@prisma/client';
 
 @Controller('posts')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -41,8 +43,12 @@ export class PostsController {
   }
 
   @Post()
-  async createPost(@Body() post: CreatePostDto) {
-    return this.postsService.createPost(post);
+  @UseGuards(JwtAuthenticationGuard)
+  async createPost(
+    @Body() post: CreatePostDto,
+    @Req() request: RequestWithUser,
+  ) {
+    return this.postsService.createPostWithPrisma(post, request.user as User);
   }
 
   @Put(':id')

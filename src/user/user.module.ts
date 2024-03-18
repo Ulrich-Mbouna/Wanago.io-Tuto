@@ -7,9 +7,15 @@ import { FilesService } from '../files/files.service';
 import { FilesModule } from '../files/files.module';
 import { PrivateFilesService } from '../files/privateFiles.service';
 import { PrivateFileModule } from '../files/privateFile.module';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), FilesModule, PrivateFileModule],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    FilesModule,
+    PrivateFileModule,
+    PrismaModule,
+  ],
   controllers: [UserController],
   providers: [UserService],
   exports: [UserService],

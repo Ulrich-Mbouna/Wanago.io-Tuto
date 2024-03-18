@@ -11,6 +11,7 @@ import { UserNotFoundException } from './exception/userNotFound.exception';
 import { FilesService } from '../files/files.service';
 import { PrivateFilesService } from '../files/privateFiles.service';
 import bcrypt from 'bcrypt';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UserService {
@@ -19,6 +20,7 @@ export class UserService {
     private readonly fileService: FilesService,
     private readonly privateFileService: PrivateFilesService,
     private readonly dataSource: DataSource,
+    private readonly prismaService: PrismaService,
   ) {}
 
   async setCurrentRefreshToken(refreshToken: string, userId: number) {
@@ -73,6 +75,21 @@ export class UserService {
     const newUser = this.userRepository.create(createUserDto);
     await this.userRepository.save(newUser);
     return newUser;
+  }
+  async createUserByPrisma(createUserDto: CreateUserDto) {
+    const _address = createUserDto.address;
+
+    return this.prismaService.user.create({
+      data: {
+        ...createUserDto,
+        address: {
+          create: _address,
+        },
+      },
+      include: {
+        address: true,
+      },
+    });
   }
 
   async addAvatar(userId: number, imageBuffer: Buffer, filename: string) {

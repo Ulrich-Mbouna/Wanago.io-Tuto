@@ -5,19 +5,26 @@ import { Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryNotFoundException } from './exceptions/CategoryNotFound.exception';
-import { raw } from 'express';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    private readonly prismaService: PrismaService,
   ) {}
   async create(createCategoryDto: CreateCategoryDto) {
-    const newCategory = this.categoryRepository.create(createCategoryDto);
+    // const newCategory = this.categoryRepository.create(createCategoryDto);
+    //
+    // await this.categoryRepository.save(newCategory);
+    // return newCategory;
 
-    await this.categoryRepository.save(newCategory);
-    return newCategory;
+    return this.prismaService.category.create({
+      data: {
+        ...createCategoryDto,
+      },
+    });
   }
 
   findAll() {
