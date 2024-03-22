@@ -20,22 +20,17 @@ import { ProductCategoryModule } from './product-category/product-category.modul
 import { EmailModule } from './email/email.module';
 
 import { ScheduleModule } from '@nestjs/schedule';
-import { EmailSchedulingService } from './email/email-scheduling/email-scheduling.service';
 import { ChatModule } from './chat/chat.module';
 import { MessageModule } from './message/message.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { GraphQLModule } from '@nestjs/graphql';
 import * as process from 'process';
-import {
-  ApolloDriver,
-  ApolloDriverAsyncConfig,
-  ApolloDriverConfig,
-} from '@nestjs/apollo';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { PubSubModule } from './pubSub/pubSub.module';
-import { Context } from '@hapi/joi';
 import { Timestamp } from './Scalar/timestamp.scalar';
 import { PrismaModule } from './prisma/prisma.module';
+import { BullModule } from '@nestjs/bull';
+import { OptimizeModule } from './optimize/optimize.module';
 
 @Module({
   imports: [
@@ -87,18 +82,27 @@ import { PrismaModule } from './prisma/prisma.module';
       useFactory: (configService: ConfigService) => ({
         playground: Boolean(configService.get('GRAPHQL_PLAYGROUND')),
         autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-        include: [PostsModule],
-        // installSubscriptionHandlers: true,
+        include: [PostsModule], // installSubscriptionHandlers: true,
         subscriptions: {
-          'graphql-ws': true,
-          // 'subscriptions-transport-ws': true,
+          'graphql-ws': true, // 'subscriptions-transport-ws': true,
         },
         buildSchemaOptions: {
           dateScalarMode: 'timestamp',
         },
       }),
     }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        redis: {
+          host: configService.get('REDIS_HOST'),
+          port: Number(configService.get('REDIS_PORT')),
+        },
+      }),
+      inject: [ConfigService],
+    }),
     PrismaModule,
+    OptimizeModule,
   ],
   controllers: [AppController],
   providers: [
